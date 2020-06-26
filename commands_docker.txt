@@ -1,0 +1,706 @@
+docker ps -a
+
+docker run in28min/todo-rest-api-h2:1.0.0.RELEASE
+
+docker run -p 8080:5000 in28min/todo-rest-api-h2:1.0.0.RELEASE
+
+docker run -p 8080:5000 -d in28min/todo-rest-api-h2:1.0.0.RELEASE
+
+docker logs 7451
+
+docker run -p 8081:5000 -d in28min/todo-rest-api-h2:1.0.0.RELEASE
+
+docker logs -f 23ac
+
+docker container stop 7451867b3ed8
+
+docker container ls -a
+
+docker run -p 8080:5000 in28min/todo-rest-api-h2:0.0.1-SNAPSHOT
+
+docker tag in28min/todo-rest-api-h2:1.0.0.RELEASE in28min/todo-rest-api-h2:latest
+
+docker pull mysql
+
+
+[COMANDOS PARA IMAGENS]
+
+docker images
+
+[docker search para buscar imagens oficiais [recomendado]]
+docker search mysql
+
+docker image history f8049a029560
+
+docker image inspect f8049a029560
+
+docker image remove be0dbf01a0f3
+
+
+[COMANDOS PARA CONTAINERS]
+
+docker container run -p 8080:5000 in28min/todo-rest-api-h2:1.0.0.RELEASE
+
+[-d [detached mode]. output is the id of the container. e.g.: 5a71f7f73151b6c955c29d18831ef17b7de94dedc53591a5239c23a7e43b63c6]
+docker container run -p 8080:5000 -d in28min/todo-rest-api-h2:1.0.0.RELEASE
+
+[pause unpause a container [5a71 is part of the id]]
+docker container pause 5a71
+
+docker logs -f 5a71
+
+docker container unpause 5a71
+
+docker container inspect 5a71
+
+docker container ls -a
+
+[remove all stopped containers]
+docker container prune
+
+[stop command gracefully shuts down the container]
+
+docker container ls -a
+
+docker container logs -f 5a71
+
+[signal sent to the container: SIGTERM: take about 10 seconds and make sure that you gracefully complete your execution]
+docker container stop 5a71
+
+clear
+
+docker run -p 8080:5000 -d in28min/todo-rest-api-h2:0.0.1-SNAPSHOT
+3f153ac134f8603ecf575ca2d68153fa777be1c211777ac4df50cc860dc50ee2
+
+docker logs -f 3f15
+
+[the container is stopped as it is. it was not given time to anything. in technical terms: a signal called SIGKILL is sent out to the container and that immediately stops. the command that should be used 99.9% of the times is 'docker container stop ']
+docker container kill 3f15
+
+docker container prune
+
+[restart policy. --restart=always or no[default]]
+docker container run -p 8080:5000 -d --restart=always in28min/todo-rest-api-h2:0.0.1-SNAPSHOT
+77c634936921bb200248f213ffcbe08b6398a4d9fddd153eed537574f3200a2f
+
+docker container stop 77c6
+
+docker container ls -a
+
+service docker restart
+
+[STATUS of this container is in running. this container is automatically started, because specified --restart=always]
+docker container ls -a
+
+docker container stop 77c6
+
+docker container prune
+
+docker container ls -a
+
+
+[DOCKER EVENTS to see what is happening in the background]
+
+[TAB2]
+docker events
+
+[TAB1]
+docker container run -p 8080:5000 -d --restart=always in28min/todo-rest-api-h2:0.0.1-SNAPSHOT
+44aaf4e8c13dc491af13348a69be26b8ad4bc9b39cb6f5c98961493016ede760
+
+docker container stop 44aa
+
+[in TAB2, we can see a lot of events that are happenning]
+
+[top process running in a specific container]
+docker top
+
+docker container ls
+
+docker container top 9198
+
+docker container stats
+
+[total images containers / active / size]
+docker system df
+
+
+
+[]
+
+docker events [monitor the events happening within Docker engine [Docker daemon]]
+docker top c710 [helps to see all processes which are in a specific container]
+docker stats [gives the stats for each of the container which are running [memory, cpu, etc]]
+docker run -m 512m --cpu-quota 50000 [how to set memory and cpu limits for containers]
+docker system df [which are the resources that are being managed by Docker daemon and how much size each one have]
+
+
+
+[build docker image manually]
+
+1. Build a JAR
+mvn clean package
+2. Setup the pre-requisites for running the JAR
+3. Copy the JAR
+4. Run the JAR
+
+docker run -dit openjdk:8-jdk-alpine
+
+[-d detached mode - the container is running but we are still able to execute the commands in the terminal]
+
+[did]
+
+[-id interactive shell - will allow us to run a few commands against the running container. we are attaching an interactive shell to the running container]
+
+[what is in the tmp folder? [container name: priceless_proskuriakova]]
+docker container exec priceless_proskuriakova ls /tmp
+
+
+[copy the JAR file. want to copy to the container: priceless_proskuriakova]
+docker container cp target/hello-world-rest-api.jar priceless_proskuriakova:/tmp
+
+docker container exec priceless_proskuriakova ls /tmp
+hello-world-rest-api.jar
+
+
+[how to run the jar?]
+
+[1. save the container which we created as an image]
+
+docker container commit  in28min/hello-world-rest-api:manual1
+sha256:d61f7795ded154c18636babf0aece21cd7aff43ffea8c8b432038d2cd769ff0d
+
+docker images
+
+
+[2. run the image]
+
+docker container run in28min/hello-world-rest-api:manual1
+
+
+
+[3. run the JAR file inside of the image. add a startup command: --change='']
+
+docker container commit --change='' name_of_container name_of_image
+
+docker container commit --change='CMD ["java","-jar","/tmp/hello-world-rest-api.jar"]' priceless_proskuriakova in28min/hello-world-rest-api:manual2
+sha256:7ea04a818b2fef2907bdfe4732e67948fc92243e531fc96f28c62eeddf0181a0
+
+docker images
+
+
+docker container run -p 8080:8080  in28min/hello-world-rest-api:manual2
+
+
+### Docker Commands - Creating Image Manually
+
+- docker run -dit openjdk:8-jdk-alpine
+- docker container exec naughty_knuth ls /tmp
+- docker container cp target/hello-world-rest-api.jar naughty_knuth:/tmp
+- docker container exec naughty_knuth ls /tmp
+- docker container ls
+- docker container commit --change='CMD ["java","-jar","/tmp/hello-world-rest-api.jar"]' naughty_knuth in28min/hello-world-rest-api:manual1
+- docker run -p 8080:8080 in28min/hello-world-rest-api:manual1
+
+
+
+
+[use dockerfile to build docker image]
+
+FROM openjdk:8-jdk-alpine
+
+ADD target/hello-world-rest-api.jar hello-world-rest-api.jar
+
+ENTRYPOINT ["sh", "-c", "java -jar /hello-world-rest-api.jar"] 
+
+docker build -t in28min/hello-world-rest-api:dockerfile1 .
+
+docker run -p 8080:8080 in28min/hello-world-rest-api:dockerfile1
+
+docker build -t in28min/hello-world-rest-api:dockerfile1 .
+
+
+FROM openjdk:8-jdk-alpine
+EXPOSE 8080
+ADD target/hello-world-rest-api.jar hello-world-rest-api.jar
+ENTRYPOINT ["sh", "-c", "java -jar /hello-world-rest-api.jar"] 
+
+
+<plugin>
+	<groupId>com.spotify</groupId>
+	<artifactId>dockerfile-maven-plugin</artifactId>
+	<version>1.4.10</version>
+	<executions>
+		<execution>
+			<id>default</id>
+			<goals>
+				<goal>build</goal>
+			</goals>
+		</execution>
+	</executions>
+	<configuration>
+		<repository>in28min/${project.name}</repository>
+		<tag>${project.version}</tag>
+		<skipDockerInfo>true</skipDockerInfo>
+	</configuration>
+</plugin>
+
+mvn package -DskipTests
+
+docker run -p 8080:8080 in28min/hello-world-rest-api:0.0.1-SNAPSHOT
+
+
+[generic docker file]
+FROM openjdk:8-jdk-alpine
+EXPOSE 8080
+ADD target/*.jar app.jar
+ENTRYPOINT ["sh", "-c", "java -jar /app.jar"]
+
+
+mvn clean package -DskipTests
+
+
+docker run -p 8080:8080 in28min/hello-world-rest-api:0.0.1-SNAPSHOT
+
+
+
+[unpack jar file [separate dependencies and class files] via maven plugin]
+
+<plugin>	
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-dependency-plugin</artifactId>
+	<executions>
+		<execution>
+			<id>unpack</id>
+			<phase>package</phase>
+			<goals>
+				<goal>unpack</goal>
+			</goals>
+			<configuration>
+				<artifactItems>
+					<artifactItem>
+						<groupId>${project.groupId}</groupId>
+						<artifactId>${project.artifactId}</artifactId>
+						<version>${project.version}</version>
+					</artifactItem>
+				</artifactItems>
+			</configuration>
+		</execution>
+	</executions>
+</plugin>
+
+mvn clean package
+
+
+[Dockerfile for the unpack JAR]
+
+FROM openjdk:8-jdk-alpine
+ARG DEPENDENCY=target/dependency
+COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY ${DEPENDENCY}/META-INF /app/META-INF
+COPY ${DEPENDENCY}/BOOT-INF/classes /app
+ENTRYPOINT ["java", "-cp", "app:app/lib/*", "com.in28minutes.rest.webservices.restfulwebservices.RestfulWebServicesApplication"]
+
+
+
+[JIB maven plugin: no need for Dockerfile. implements OCI specification. Open Container Initiative]
+
+
+
+<plugin>
+	<groupId>com.google.cloud.tools</groupId>
+	<artifactId>jib-maven-plugin</artifactId>
+	<version>1.6.1</version>
+	<configuration>
+		<container>
+			<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+		</container>
+	</configuration>
+	<executions>
+		<execution>
+			<phase>package</phase>
+			<goals>
+				<goal>dockerBuild</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+
+
+
+# FROM openjdk:8-jdk-alpine
+# EXPOSE 8080
+# ADD target/*.jar app.jar
+# ENTRYPOINT ["sh", "-c", "java -jar /app.jar"] 
+
+# FROM openjdk:8-jdk-alpine
+# ARG DEPENDENCY=target/dependency
+# COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
+# COPY ${DEPENDENCY}/META-INF /app/META-INF
+# COPY ${DEPENDENCY}/BOOT-INF/classes /app
+# ENTRYPOINT ["java","-cp","app:app/lib/*","com.in28minutes.rest.webservices.restfulwebservices.RestfulWebServicesApplication"]
+
+
+
+Failed to execute goal com.google.cloud.tools:jib-maven-plugin:1.6.1:dockerBuild (default) on project: com.google.cloud.tools.jib.api.InsecureRegistryException: Failed to verify the server at https://gcr.io/v2/distroless/java/blobs/sha256 because only secure connections are allowed.
+
+Caused by: 
+
+
+com.google.cloud.tools.jib.api.InsecureRegistryException: Failed to verify the server at because only secure connections are allowed.
+
+I/O error for image [gcr.io/distroless/java] Read timed out
+
+
+
+mvn clean package -DskipTests -e -Djib.httpTimeout=7200000
+
+
+docker history 01-hello-world-rest-api:0.0.1-SNAPSHOT
+
+
+[fabric8io maven plugin]
+
+
+
+
+[mysql]
+
+
+[-d detached mode it would start the container up and the terminal will be for you to use. otherwise, if I don't specify -d, the terminal would be linked to the container: as soon as you close the terminal, you would see that the container would also get killed]
+docker run -d -e MYSQL_ROOT_PASSWORD=dummypassword -e MYSQL_DATABASE=todos -e MYSQL_USER=todos-user -e MYSQL_PASSWORD=dummytodos mysql:5.7
+a4ad27301202220a513cb23e7610813fd3c32c47bbe1227b691c7b31278ee054
+
+docker container list
+
+[container id a4ad27301202]
+docker rm a4ad27301202
+
+
+[to enter mysql terminal we need to expose port 3306 from docker container to the localhost on port 3306]
+docker run -d -e MYSQL_ROOT_PASSWORD=dummypassword -e MYSQL_DATABASE=todos -e MYSQL_USER=todos-user -e MYSQL_PASSWORD=dummytodos -p 3306:3306 mysql:5.7	
+
+
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 mysql:5.7
+
+[the default networking mode in Docker is something called Bridge. when we are using the Bridge networking mode, the containers that are launched with a default setting cannot really talk to each other. what can be done to fix this? one of the options non-recommended is to use a link. link to the mysql container. 'hopeful_cerf' is the NAME of the container. if you'd want to connect to MySQL, the hostname should also be the same as the container name. if you look at the application.properties, it should be used environment variable notation. the only thing that we would need to change is the RDS_HOSTNAME. it should be hopeful_cerf: instead of localhost, I would want it to be used hopeful_cerf. we shall use the environment variable instead of changing the properties file]
+
+spring.datasource.url=jdbc:mysql://${RDS_HOSTNAME:localhost}:${RDS_PORT:3306}/${RDS_DB_NAME:todos}
+spring.datasource.username=${RDS_USERNAME:todos-user}
+spring.datasource.password=${RDS_PASSWORD:dummytodos}
+
+
+docker container run -p 8080:8080 --link=hopeful_cerf -e RDS_HOSTNAME=hopeful_cerf in28min/todo-web-application-mysql:0.0.1-SNAPSHOT
+
+
+[if you launch into bridge network and you would want those two containers to talk to each other this is one of the options using a link however this is not recommended option]
+
+docker network ls
+
+NETWORK ID          NAME                DRIVER              SCOPE
+4459f85b4556        bridge              bridge              local
+2e86170d3f17        host                host                local
+e01b18f29a73        none                null                local
+
+docker inspect bridge
+
+
+[8080:8080 what we are doing is we are actually taking a port, a container port from the internal Docker network and mapping it to the host on port 8080. so what happens is when you're using the bridge network there is an internal Docker network where all the containers would be running inside and when you're using the default bridge network, these applications cannot talk to each other at all. and that's where we tried to establish a link between them and got them to talk to each other]
+
+[the other mode which is available is something called a host network. the other option that we have with docker is to launch our applications into something called a host network. so instead of having intermediate Docker network, what we are telling it is we don't want to use the intermediate Docker network, we would want to directly expose everything on the host. so you don't need to do -p 8080:8080. all that you need to do is to say, --network=host]
+
+
+docker container run --network=host in28min/todo-web-application-mysql:0.0.1-SNAPSHOT
+
+[so what would happen now is the container would be running as part of our host network, the port would be automatically exposed and all the magic would happen]
+
+
+
+
+
+[custom network]
+
+docker network create web-application-mysql-network
+
+docker network ls
+
+NETWORK ID          NAME                            DRIVER              SCOPE
+4459f85b4556        bridge                          bridge              local
+2e86170d3f17        host                            host                local
+e01b18f29a73        none                            null                local
+4e6401201880        web-application-mysql-network   bridge              local
+
+
+[launching mysql using docker]
+
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 --network=web-application-mysql-network mysql:5.7
+
+
+docker container run -p 8080:8080 --network=web-application-mysql-network -e RDS_HOSTNAME=mysql in28min/todo-web-application-mysql:0.0.1-SNAPSHOT
+
+
+docker network inspect web-application-mysql-network
+
+
+docker container stop mysql
+
+
+[volumes]
+
+[using custom network]
+
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 --network=web-application-mysql-network mysql:5.7
+
+docker container run -p 8080:8080 -d --network=web-application-mysql-network -e RDS_HOSTNAME=mysql  in28min/todo-web-application-mysql:0.0.1-SNAPSHOT
+bedb4b86ebb53ad5ca3c461f29812d17b3e859f52ed0ad7f9fc22a976e5aa378
+
+[tailing the logs]
+docker container -f logs bed
+
+docker container restart mysql
+
+docker container ls
+
+docker container stop mysql
+
+docker rm mysql
+
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 --network=web-application-mysql-network mysql:5.7
+
+docker container ls
+
+[38 container id]
+docker stop 38
+
+docker stop bed
+
+docker container prune
+
+docker container ls
+
+[the folder inside the MySQL imate which would contain the MySQL data: /var/lib/mysql. we are creating a volume on the host machine which maps to this particular directory inside the container. so whatever change that you make in this directory would also be persisted on the local disk of the host: mysql-database-volume]
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 --network=web-application-mysql-network --volume mysql-database-volume:/var/lib/mysql mysql:5.7
+
+
+docker container run -p 8080:8080 -d --network=web-application-mysql-network -e RDS_HOSTNAME=mysql  in28min/todo-web-application-mysql:0.0.1-SNAPSHOT
+
+[f34 container id]
+docker container logs -f f34
+
+docker container ls -a
+
+docker stop mysql
+
+docker rm mysql
+
+docker container ls -a
+
+[volumes help us to in persisting data to the host. docker data volumes help us to share data between the host filesystem and the docker container. so we are creating a volume: mysql-database-volume on the host filesystem and mapping it to a folder on the Docker container: /var/lib/mysql. this will allow us to share data between multiple containers. if I'm creating 3, 4 containers with this particular volume, what they can all do is they can talk to that volume and they can share that volume. whatever files that are created in there can be shared between all the containers which are attached with this specific volume. and the last use case is when you'd want to actually persist data after Docker container is removed]
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 --network=web-application-mysql-network --volume mysql-database-volume:/var/lib/mysql mysql:5.7
+
+
+
+
+[docker with java spring boot react full stack application]
+
+
+[sending out the context to the Docker Daemon. it would send a lot of information out to the Docker Daemon]
+docker build .
+
+[the first thing which happened is, the build context is sent to the Docker daemon. so, docker build . so the first thing which happened is the build context is sent to Docker daemon. earlier, we would want actually the target folder because we use the target folder's JAR file. however, right now, we are not using anything on the local machine, except for the source. so you don't really need the target folder to be sent to the docker daemon. ]
+
+
+##### Stage 1 - Lets build the "deployable package"
+
+FROM maven:3.6.1-jdk-8-alpine as backend-build
+WORKDIR /fullstack/backend
+
+### Step 1 - Copy pom.xml and download project dependencies
+
+# Dividing copy into two steps to ensure that we download dependencies 
+# only when pom.xml changes
+COPY pom.xml .
+# dependency:go-offline - Goal that resolves all project dependencies, 
+# including plugins and reports and their dependencies. -B -> Batch mode
+RUN mvn dependency:go-offline -B
+
+### Step 2 - Copy source and build "deployable package"
+COPY src src
+RUN mvn install -DskipTests
+
+# Unzip
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+
+##### Stage 2 - Let's build a minimal image with the "deployable package"
+FROM openjdk:8-jdk-alpine
+VOLUME /tmp
+ARG DEPENDENCY=/fullstack/backend/target/dependency
+COPY --from=backend-build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=backend-build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=backend-build ${DEPENDENCY}/BOOT-INF/classes /app
+ENTRYPOINT ["java","-cp","app:app/lib/*","com.in28minutes.rest.webservices.restfulwebservices.RestfulWebServicesApplication"]
+
+
+[you'd see that the initial steps don't really take a lot of time. the main command which takes a lot of time: RUN mvn dependency:go-offline -B, would have taken a long time to run because this downloads all the Maven dependencies. this is running inside the container, so it would need to get everything fresh, all the dependencies, and this is also inside the container's network.]
+
+[what I would want to do is I would want to add a tag to this specific image which was created just now.]
+
+[now we have the tag so that we can identify this image at a later point in time]
+docker tag 70df33767212 in28min/rest-api-full-stack:2stagebuild
+
+docker run -p 8080:8080 in28min/rest-api-full-stack:2stagebuild
+
+
+[docker compose]
+
+[I had to individually manage the life cycles of each of these containers. How about having something on top of your Docker images to help you manage the lifecycle of these containers? When I have one or two containers that are running, it's easy to manage the lifecycle. Now, as we go to work the microservices, where you'll have 4 or 5 or sometimes 6, 7 containers running at the same time, launching each of them individually will be a big headache. and that's where a tool called Docker Compose is very very useful. Docker Compose is a tool for defining and running multi-container Docker applications. you can use a YAML file and you can configure all the services or all the containers in your applications. you can define multiple containers and start all of them with a single command.]
+
+[docker-compose up -d --scale servicename=3]
+
+
+docker images in28min/todo-front-end:0.0.1-SNAPSHOT
+
+docker images in28min/rest-api-full-stack:0.0.1-SNAPSHOT
+
+docker-compose up
+
+docker container ls
+
+[detached mode.]
+docker-compose up -d
+
+
+docker network ls
+
+docker inspect 04-spring-boot-react-full-stack-h2_fullstack-application-network
+
+[stop the applications. containers are stopped, containers are removed, and the network is also removed out]
+docker-compose down
+
+
+[creates de network again, creates the containers, and it would start them up as well]
+docker-compose up -d
+
+
+[volume]
+[in addition to that, we have a volume defined. the volume, as we discussed earlier, we would want to save the data of MySQL database data into the host. so even if we stop and restart the MySQL database at some other time, inside the same host, the data is retained]
+
+
+[similar to docker events, docker-compose events will help you to see what events are happening]
+docker-compose events
+
+[you can use this to validate any errors that are present inside your configuration]
+docker-compose config
+
+[it gives you an idea about what are the images that are being managed by docker-compose]
+docker-compose images
+
+
+[the processes. the list of containers that are running]
+docker-compose ps
+
+
+[all the processes that are running in each of the containers. inside mysql, mysqld is running. inside todo-web-application container, tomcat is running]
+docker-compose top
+
+
+[pause all the containers]
+docker-compose pause
+
+
+docker-compose ps
+
+docker-compose unpause
+
+docker-compose kill
+
+docker-compose rm
+
+docker-compose build
+
+
+docker-compose config
+docker-compose events
+docker-compose images
+docker-compose ps
+docker-compose top
+docker-compose pause
+docker-compose unpause
+docker-compose rm
+docker-compose build
+
+docker-compose kill
+docker-compose stop
+
+[if you do a docker-compose build and you have build specified for a number of services inside the docker-compose file, the images for all those services would be built again. so you don't really need to do individual builds for those services]
+
+
+
+[microservices]
+
+docker network create currency-network
+
+docker run -p 8000:8000 -d --network=currency-network --name=currency-exchange-service in28min/currency-exchange-service:0.0.1-SNAPSHOT
+
+docker container prune
+
+clear 
+
+[environment variable: CURRENCY_EXCHANGE_URI=http://name_of_the_service:port. so that the currency-conversion-service can talk to the currency-exchange-service. so once we configure the environment variable, the currency-conversion-service will be using the environment variable URI, which we have configured as currency-exchange-service:8000]
+
+docker run -p 8100:8100 -d --network=currency-network --name=currency-conversion-service --env CURRENCY_EXCHANGE_URI=http://currency-exchange-service:8000 in28min/currency-conversion-service:0.0.1-SNAPSHOT
+9f263c96120b94c4c9c3bd8f75750adfa9529ee90c368177d59bfc3da94c2fc0
+
+
+docker container logs -f 9f26
+
+docker container ls
+
+[when we use the Eureka Naming Server or something called a service registry, there are two things that would happen: service registration and service discovery. let's first talk about service registration. each of these 2 services, CurrencyConversionService and the CurrencyExchangeService, whenever they start up, they would register with Eureka Naming Server. Let's say there are 5 instances of CurrencyExchangeService and 2 instances of CurrencyConversionService. all the instances would register with the Eureka Naming Server: that's service registration. The second step is service discovery. Now, the CurrencyConversionService wants to talk to the CurrencyExchangeService. What does it need to know? It needs to know the current live instances of the CurrencyExchangeService. and what does it do? it does something called service discovery. what it does is it calls the service registry or the Eureka Naming Server and asks, Okay, what are the current live instances of the CurrencyExchangeService? the Eureka Naming Server would look up its database and it sees that there are 3 instances of CurrencyExchangeService running and it would return that list back to the CurrencyConversionService. and the CurrencyConversionService can then distribute the load among the instances of the CurrencyExchangeService. whatever we are setting up in here is what is called dynamic scale up and scale down. as instances go up and go down, they register with the naming server. and in the CurrencyConversionService, we are already using Feign. and Feign uses something called Ribbon. Ribbon helps us to actually make it very easy to do something called client-side load balancing. so what Ribbon does is, it ask the Eureka server, Okay, give me the list of active CurrencyExchangeServices and once it gets the list, it would load-balance among the active instances.]
+
+
+
+[application.properties. and we would want these to connect to the Naming Server. How do we enable that? If we had Naming Server running on the local, then we'd need to use localhost:8761/eureka. what we'll do is, we'll try and directly launch this up in Docker. So, what we'll do is, we'll use the Docker Compose service name. So, we are saying, Okay, Eureka, when we launch it in Docker Compose, will be naming-server, this is the name which we'll be giving to the naming server service, :8761/eureka. this is where you'd need to register yourself. this is how you'd need to do service registry. so, when this application starts up, when the CurrencyConversion application starts up, it will register itself with the Eureka at this specific URL. and the same thing we should do on the CurrencyExchangeService property file as well.]
+eureka.client.service-url.defaultZone=http://naming-server:8761/eureka/
+
+
+
+
+docker-compose scale currency-exchange-service=2
+
+docker-compose logs -f
+
+
+
+[what we did is, we registered the CurrencyConversionService and the CurrencyExchangeService with the Eureka Naming Server. That phase is called Service Registration. And after that, whenever CurrencyConversionService wants to talk to the CurrencyExchangeService, it needs to do Service Discovery. So it asks Eureka Naming Server, Okay, where is the CurrencyExchangeService? It gets the URL, it gets a list of instances, and it distributes the load between them. and this is what is typically called dynamic scale up and down. and the way we implemented it is using Eureka Naming Server and we used Feign and Feign internally uses Ribbon which does client-side load balancing. It gets the list of instances from Eureka and distributes the load equally between them.]
+
+
+
+
+[microservices with zuul api gateway]
+
+[whenever we talk about microservices, we are talking about a chain of microservices, a number of microservices which are talking to each other and there would be common features in these microservices. for example: authentication, rate limiting, logging. if you implement these common features in each of the microservices, then what would happen? you would have a lot of duplication among your microservices. a frequently used pattern in microservices architecture is to use an API gateway to implement the common features: authentication, authorization and security; rate limits; fault tolerance; service aggregation. rate limits is, you can say, this client can call the service only 10.000 times in a day. not more than that. that's is what is called rate limiting. you'd want your microservices to be fault tolerant. you can implement logic around that in your API Gateway as well. and also things like service aggregation: I would want to expose simple interface to my client, so what I'll do is call 3 or 4 services, aggregate the result, and return the aggregate result back. so all of these are common features among microservices and API gateways are among of the options to implement these common features. one of the popular API gateway implementations is zuul. ]
+
+
+
+[zipkin]
+
+[whenever we have a microservices architecture, you have a chain of microservices talking to each other. let's say there is a problem and you would want to find out what's happening at the big picture level. which are the microservices which were hit by a specific request? how do you find it out? it might be though, especially because a number of microservices might be involved in doing a single request. now, how do you trace something across multiple microservices? that's where distributed tracing comes into picture. let's implement zipkin, which would enable us to trace the requests across multiple microservices. now, let's try and understand the high-level architecture of how zipkin distributed tracing server would work. what do we want the tracing server to do? it should know whenever a request hits any of the microservices; whether it's the CurrencyConversionService; CurrencyExchangeService, or any other microservice in your enterprise, you'd want all of these requests to be tracked by zipkin, and we are taking an asynchronous approach right now. so what we are doing in here is, whenever any microservice gets a request, it would put a simple message, a simple log into the RabbitMQ queue, and the zipkin distributed server would be listening on it and it will be processing the information so that it can make a dashboard available for us and we can go to the dashboard and see, Ok, this request went through these specific microservices. the interesting thing is, how does zipkin know that the same request is going through multiple microservices? you need some kind of an identifier that enables us to track a request across multiple services. let's execute a CurrencyConversionService request. you'd see that in every log there is an ID which is associated. so if you search for this specific ID, [currency-exchange-service,928d0bdf26155ac0,67dce1a807592f83,false] 1 --- [nio-8000-exec-7], the first one is the name of the service, the second one is the unique id for this specific request. so, you'd actually search for it, you can see that the request started with currency-conversion-service and next it went to the zuul api gateway and next it went to the CurrenchExchangeService. So this id is already there. How did this id come in? Where did the magic happen? The magic happens having something called Sleuth, added in into all our microservices, in the pom.xml added in as a dependency. how does spring cloud sleuth work? let's say a request is going through all these 5 microservices. what spring cloud sleuth does is it would add an id. so when it gets a new request, so when the request comes to Microservice1 and there is no Sleuth header id which is present there, it would add a header id on top of it. and each of the further calls would retain that id. so, whatever id that we have which we were looking at, that is added in by Sleuth on the first call to your first service, and from then on, it is retained on all the other calls and therefore, what the zipkin can do? zipkin can look at the ids of the logs which are coming in and it can trace the request across multiple microservices. ]
+
+
+[we want to trace every request]
+spring.sleuth.sampler.probability=1.0
+
+[zipkin distributed tracing server will start listening on rabbitmq. zuul puts a message on the queue for the log. same thing with CurrencyExchangeService, it would depend on RabbitMQ as well, and the CurrencyConversionService also it would depend on RabbitMQ as well.]
+
+
+
+[we will use a in-memory database and therefore, we are saying STORAGE_TYPE: mem. and we would want to add another environment variable called RABBIT_URI. we would want the Zipkin server to talk to RabbitMQ. how do we do that? that's by adding RABBIT_URI. we are using the amqp protocol. the default password and password for RabbitMQ are actually guest and guest @ rabbitmq:5672 the port on which RabbitMQ is running. so we would want the zipkin server to be listening on RabbitMQ. so we would configure the RABBIT_URI. the thing  is this configuration is needed by other services as well. the zuul api gateway also needs to depend on that. zuul api gateway needs to connect to rabbitmq. CurrencyExchangeService also needs to connect to RabbitMQ. and for the CurrencyConversionService.]
+zipkin-server:
+    image: openzipkin/zipkin
+    environment:
+      STORAGE_TYPE: mem
+      RABBIT_URI: amqp://guest:guest@rabbitmq:5672
+
+
+
